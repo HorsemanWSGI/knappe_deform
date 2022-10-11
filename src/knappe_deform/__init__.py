@@ -39,8 +39,6 @@ class FormPage(metaclass=HTTPMethodEndpointMeta):
     def POST(self, request):
         found = tuple(set(self.actions) & set(request.data.form))
         if len(found) != 1:
-            import pdb
-            pdb.set_trace()
             raise HTTPError(
                 400, body='Could not resolve an action for the form.')
         action = self.actions[found[0]]
