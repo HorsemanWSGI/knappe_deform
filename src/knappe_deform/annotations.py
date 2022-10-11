@@ -4,8 +4,12 @@ from typing import NamedTuple, Iterator
 
 
 class Trigger(NamedTuple):
-    order: int = 0
-    button: button
+    order: int
+    button: deform.form.Button
+
+    @property
+    def form_id(self):
+        return ('trigger', self.button.value)
 
 
 class trigger(annotation):
@@ -21,10 +25,11 @@ class trigger(annotation):
         self.annotation = Trigger(
             order=order,
             button=deform.form.Button(
-                 value=value,
-                 title: str = None,
-                 icon: str = None,
-                 css_class = None,
+                name='trigger',
+                value=value,
+                title=title,
+                icon=icon,
+                css_class=css_class,
             )
         )
 

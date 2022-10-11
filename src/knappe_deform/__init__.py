@@ -1,7 +1,10 @@
 import pathlib
-import colander
 import typing as t
+import deform
+import colander
 from chameleon.zpt.template import PageTemplateFile
+from knappe.decorators import html
+from knappe import HTTPError
 from knappe.meta import HTTPMethodEndpointMeta
 from .annotations import trigger, Trigger
 
@@ -17,7 +20,7 @@ class FormPage(metaclass=HTTPMethodEndpointMeta):
 
     def __init__(self):
         triggers = trigger.in_order(self)
-        self.actions = {('trigger', t.value): m for t, m in triggers}
+        self.actions = {t.form_id: m for t, m in triggers}
         self.buttons = tuple((t.button for t, m in triggers))
 
     def get_form(self, request):
@@ -36,6 +39,8 @@ class FormPage(metaclass=HTTPMethodEndpointMeta):
     def POST(self, request):
         found = tuple(set(self.actions) & set(request.data.form))
         if len(found) != 1:
+            import pdb
+            pdb.set_trace()
             raise HTTPError(
                 400, body='Could not resolve an action for the form.')
         action = self.actions[found[0]]
