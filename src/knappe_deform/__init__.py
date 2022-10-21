@@ -16,19 +16,20 @@ form_template = PageTemplateFile(
 
 class FormPage(metaclass=HTTPMethodEndpointMeta):
 
-    schema: t.Type[colander.Schema]
-
     def __init__(self):
         triggers = trigger.in_order(self)
         self.actions = {t.form_id: m for t, m in triggers}
         self.buttons = tuple((t.button for t, m in triggers))
 
-    def get_form(self, request):
-        schema = self.schema().bind(request=request)
+    def get_schema(self, request) -> t.Type[colander.Schema]:
+        raise NotImplementedError('Implement your own.')
+
+    def get_form(self, request) -> deform.form.Form:
+        schema = self.get_schema(request)
         return deform.form.Form(schema, buttons=self.buttons)
 
     @html('form', default_template=form_template)
-    def GET(self, request):
+    def GET(self, request) -> dict:
         form = self.get_form(request)
         return {
             "error": None,
