@@ -9,6 +9,15 @@ from knappe.meta import HTTPMethodEndpointMeta
 from .annotations import trigger, Trigger
 
 
+try:
+    from jsonschema_colander.types import String
+
+    String.widgets["password"] = deform.widget.PasswordWidget()
+
+except ImportError:
+    pass
+
+
 form_template = PageTemplateFile(
     str(pathlib.Path(__file__).parent / "form.pt")
 )
