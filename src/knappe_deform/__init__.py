@@ -9,15 +9,6 @@ from knappe.meta import HTTPMethodEndpointMeta
 from .annotations import trigger, Trigger
 
 
-try:
-    from jsonschema_colander.types import String
-
-    String.widgets["password"] = deform.widget.PasswordWidget()
-
-except ImportError:
-    pass
-
-
 form_template = PageTemplateFile(
     str(pathlib.Path(__file__).parent / "form.pt")
 )
@@ -33,16 +24,23 @@ class FormPage(metaclass=HTTPMethodEndpointMeta):
     def get_schema(self, request) -> t.Type[colander.Schema]:
         raise NotImplementedError('Implement your own.')
 
-    def get_form(self, request) -> deform.form.Form:
+    def get_form(self, request, data=None) -> deform.form.Form:
+        """Returns a form
+        """
         schema = self.get_schema(request)
-        return deform.form.Form(schema, buttons=self.buttons)
+        bound = schema.bind(request=request, data=data)
+        return deform.form.Form(bound, buttons=self.buttons)
+
+    def get_initial_data(self, request) -> dict:
+        return {}
 
     @html('form', default_template=form_template)
     def GET(self, request) -> dict:
-        form = self.get_form(request)
+        data = self.get_initial_data(request)
+        form = self.get_form(request, data)
         return {
             "error": None,
-            "rendered_form": form.render()
+            "rendered_form": form.render(data)
         }
 
     @html('form', default_template=form_template)
